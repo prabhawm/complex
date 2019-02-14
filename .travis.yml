@@ -1,0 +1,23 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t prabhawm/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run prabhawm/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t prabhawm/complex-client ./client
+  - docker build -t prabhawm/complex-nginx ./nginx
+  - docker build -t prabhawm/complex-server ./server
+  - docker build -t prabhawm/complex-worker ./worker
+  # login to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+  # take those images and push them to Docker hub
+  - docker push prabhawm/complex-client
+  - docker push prabhawm/complex-nginx
+  - docker push prabhawm/complex-server
+  - docker push prabhawm/complex-worker
+  
