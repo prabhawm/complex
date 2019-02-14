@@ -1,0 +1,22 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t prabhawm/resume-app -f Dockerfile.dev .
+
+script:
+  - docker run prabhawm/resume-app npm run test -- --coverage
+
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-1"
+  app: "resume-app"
+  env: "ResumeApp1-env"
+  bucket_name: "elasticbeanstalk-us-east-1-442114422298"
+  bucket_path: "resume-app"
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: "$AWS_SECRET_ACCESS_KEY"
